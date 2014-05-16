@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if not user.access_token %}
+<a href="#" onClick="authUser()">Autoriseer</a>
+<script >
+    function authUser(){
+        window.open(
+        "http://localhost:8000/oauth2/authorize/?response_type=code&client_id={{client_id}}",
+        "_self");
+    }
+</script>
+{% else %}
+<div id="map" style="width:100%%; height:100%%;"></div>
+
+
+<script type="text/javascript">
+$(function() {
+    var map;
+    var ajaxRequest;
+    var plotlist;
+    var plotlayers=[];
+    map = new L.Map('map');
+
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a>';
+    var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 20, attribution: osmAttrib});
+    {% for x in response %}
+    {% if forloop.first%}
+        map.setView(new L.LatLng({{x.pointer.x}}, {{x.pointer.y}}),8);
+        map.addLayer(osm);
+    {% endif %}
+        var poly{{forloop.counter}} = L.polygon([{% for border in x.border %}{{border}},{% endfor %}]);
+        var graph = "Verwachte neerslag voor de komende 2 uur op {{x.cropfielddesignator}} (Veld nr. {{x.cropfieldid}})<br><div id='chartcont{{forloop.counter}}' style='height: 150px; width: 500px'></div>";
+        var marker{{forloop.counter}} = L.marker([{{x.pointer.x}},{{x.pointer.y}}]);
+        <!-- var graph = "Verwachte neerslag <br><span id='sl{{forloop.counter}} de komende 2 uur'></span>"; -->
+        var myvalues = [{% for z in x.rainfall %}{{z.data}},{% endfor %}];
+
+        var popup = L.popup().setContent(graph);
+        var popupOptions = {
+            'minWidth': '491px',
+            'maxWidth': '491px'
+        }
+
+        marker{{forloop.counter}}.bindPopup(popup,popupOptions);
+        marker{{forloop.counter}}.on('click', function (){
+            $('#chartcont{{forloop.counter}}').highcharts({
+                chart: {
+                    type: 'spline',
+                },
+                title: {
+                    text: '',
+                },
+                xAxis: {
+                    categories: [{% for z in x.rainfall %}'{{z.time}}',{% endfor %}],
+                    title: {
+                        text: ''
+                    },
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        hour: "%H:%M",
+                    }
+                },
+                yAxis: {
+                    min:0,
+                    max:3,
+                    ceiling:20,
+                    title: {
+                        text: ''
+                    },
+                },
+                exporting:{},
+                series : [{
+                    name : 'mm/uur',
+                    data : [{% for z in x.rainfall %}{{z.data}},{% endfor %}],
+                    tooltip: {
+                        valueDecimals: 2
+                    },
+                }]
+            });
+        });
+        poly{{forloop.counter}}.addTo(map);
+        marker{{forloop.counter}}.addTo(map);
+    {% endfor %}
+});
+
+</script>
+{% endif %}
+{% endblock content %}
