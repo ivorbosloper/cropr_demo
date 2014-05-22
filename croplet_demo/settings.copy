@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hv03j2%o*#=i(q!+)@59k6l(2h+o)man(v!6_+a36^k*owmk7t'
+SECRET_KEY = ''
 
 CROPLET_API_CLIENT_ID = '' # VERVANG DIT MET UW EIGEN CLIENT ID
 CROPLET_SECRET_API_KEY = '' # VERVANG DIT MET UW EIGEN CLIENT SECRET
