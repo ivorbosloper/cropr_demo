@@ -25,16 +25,15 @@ $(function() {
     var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a>';
     var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 20, attribution: osmAttrib});
-    {% for x in response %}
+    {% for cropfield in response %}
     {% if forloop.first%}
-        map.setView(new L.LatLng({{x.pointer.x}}, {{x.pointer.y}}),8);
+        map.setView(new L.LatLng({{cropfield.pointer.x}}, {{cropfield.pointer.y}}),8);
         map.addLayer(osm);
     {% endif %}
-        var poly{{forloop.counter}} = L.polygon([{% for border in x.border %}{{border}},{% endfor %}]);
-        var graph = "Verwachte neerslag voor de komende 2 uur op {{x.cropfielddesignator}} (Veld nr. {{x.cropfieldid}})<br><div id='chartcont{{forloop.counter}}' style='height: 150px; width: 500px'></div>";
-        var marker{{forloop.counter}} = L.marker([{{x.pointer.x}},{{x.pointer.y}}]);
-        <!-- var graph = "Verwachte neerslag <br><span id='sl{{forloop.counter}} de komende 2 uur'></span>"; -->
-        var myvalues = [{% for z in x.rainfall %}{{z.data}},{% endfor %}];
+        var poly{{forloop.counter}} = L.polygon([{% for border in cropfield.border %}{{border}},{% endfor %}]);
+        var graph = "Verwachte neerslag voor de komende 2 uur op {{cropfield.cropFieldDesignator}} (Veld nr. {{cropfield.id}})<br><div id='chartcont{{forloop.counter}}' style='height: 150px; width: 500px'></div>";
+        var marker{{forloop.counter}} = L.marker([{{cropfield.pointer.x}},{{cropfield.pointer.y}}]);
+        var myvalues = [{% for z in cropfield.rainfall %}{{z.data}},{% endfor %}];
 
         var popup = L.popup().setContent(graph);
         var popupOptions = {
@@ -52,7 +51,7 @@ $(function() {
                     text: '',
                 },
                 xAxis: {
-                    categories: [{% for z in x.rainfall %}'{{z.time}}',{% endfor %}],
+                    categories: [{% for z in cropfield.rainfall %}'{{z.time}}',{% endfor %}],
                     title: {
                         text: ''
                     },
@@ -72,7 +71,7 @@ $(function() {
                 exporting:{},
                 series : [{
                     name : 'mm/uur',
-                    data : [{% for z in x.rainfall %}{{z.data}},{% endfor %}],
+                    data : [{% for z in cropfield.rainfall %}{{z.data}},{% endfor %}],
                     tooltip: {
                         valueDecimals: 2
                     },
