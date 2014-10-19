@@ -61,8 +61,8 @@ class MapView(LoggedInMixin, generic.TemplateView):
                 borders = [[x, y] for y, x in cropfield.get('border')[0]]
                 #borders = cropfield.get('border')[0]
                 cropfield['border'] = borders
-                cropfield['pointer'] = {"x": centroid.get('centroid')[0], "y": centroid.get('centroid')[1]}
-                cropfield['rainfall'] = self.get_data_from_gps(centroid.get('centroid')[0], centroid.get('centroid')[1])
+                cropfield['pointer'] = {"y": centroid.get('centroid')[0], "x": centroid.get('centroid')[1]}
+                cropfield['rainfall'] = self.get_data_from_gps(centroid.get('centroid')[1], centroid.get('centroid')[0])
                 cropfield['id'] = cropfield['_id']
                 data.append(cropfield)
             context['cropfields'] = data
@@ -83,8 +83,8 @@ def callback(request):
     if (error != None):
         pass
     elif (auth_code != None):
-        data = {'grant_type':'authorization_code',
-                   'code':auth_code,
+        data = {'grant_type': 'authorization_code',
+                   'code': auth_code,
                    'client_id': client_id,
                    'client_secret': client_secret}
         response = requests.post(
